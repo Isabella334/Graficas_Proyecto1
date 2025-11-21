@@ -4,6 +4,8 @@ use maze::Maze;
 
 mod framebuffer;
 mod maze;
+mod player;
+mod caster;
 
 fn draw_cell(framebuffer: &mut Framebuffer, x0: usize, y0: usize, block_size: usize, cell: char) {
     if cell == ' ' {
