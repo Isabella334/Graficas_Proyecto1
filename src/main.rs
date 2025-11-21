@@ -3,11 +3,13 @@ use player::{process_events, Player};
 use raylib::prelude::*;
 use framebuffer::Framebuffer;
 use maze::{load_maze, Maze};
+use textures::TextureManager;
 
 mod framebuffer;
 mod maze;
 mod player;
 mod caster;
+mod textures;
 
 fn draw_cell(framebuffer: &mut Framebuffer, x0: usize, y0: usize, block_size: usize, cell: char) {
     if cell == ' ' {
@@ -50,38 +52,58 @@ pub fn render_maze(
     }
 }
 
-fn render_3d(
+fn cell_to_texture_color(texture_cache: &TextureManager, cell: char, tx: u32, ty: u32) -> Color {
+    texture_cache.get_pixel_color(cell, tx, ty)
+}
+
+pub fn render_3d(
     framebuffer: &mut Framebuffer,
     maze: &Maze,
-    block_size: usize,
     player: &Player,
+    block_size: usize,
+    texture_manager: &TextureManager,
 ) {
-  let num_rays = framebuffer.width;
+    let num_rays = framebuffer.width;
+    let hh = framebuffer.height as f32 / 2.0;
 
-  let hh = framebuffer.height as f32 / 2.0;
-
-  framebuffer.set_current_color(Color::WHITESMOKE);
-
-  for i in 0..num_rays {
-    let current_ray = i as f32 / num_rays as f32;
-    let a = player.a - (player.fov / 2.0) + (player.fov * current_ray);
-    let intersect = cast_ray(framebuffer, &maze, &player, a, block_size, false);
-
-    let distance_to_wall = intersect.distance;
-    let distance_to_projection_plane = 70.0;
-    let stake_height = (hh / distance_to_wall) * distance_to_projection_plane;
-
-    let stake_top = (hh - (stake_height / 2.0)) as usize;
-    let stake_bottom = (hh + (stake_height / 2.0)) as usize;
-
-    for y in stake_top..stake_bottom {
-      framebuffer.set_pixel(i, y as u32);
+    for y in 0..hh as usize {
+        framebuffer.set_current_color(Color::SKYBLUE);
+        for x in 0..framebuffer.width {
+            framebuffer.set_pixel(x as u32, y as u32);
+        }
     }
-  }
+
+    for y in (hh as usize)..framebuffer.height as usize {
+        framebuffer.set_current_color(Color::DARKGREEN);
+        for x in 0..framebuffer.width {
+            framebuffer.set_pixel(x as u32, y as u32);
+        }
+    }
+
+
+    for i in 0..num_rays {
+        let current_ray = i as f32 / num_rays as f32;
+        let a = player.a - (player.fov / 2.0) + (player.fov * current_ray);
+        let intersect = cast_ray(framebuffer, &maze, &player, a, block_size, false);
+
+        let distance_to_wall = intersect.distance;
+        let distance_to_projection_plane = 70.0;
+        let stake_height = (hh / distance_to_wall) * distance_to_projection_plane;
+
+        let stake_top = (hh - (stake_height / 2.0)).max(0.0) as usize;
+        let stake_bottom = (hh + (stake_height / 2.0)).min(framebuffer.height as f32) as usize;
+
+        for y in stake_top..stake_bottom {
+            let ty = (y as f32 - stake_top as f32) / (stake_bottom as f32 - stake_top as f32) * 128.0;
+
+            let color = cell_to_texture_color(texture_manager, intersect.impact, intersect.tx as u32, ty as u32);
+            framebuffer.set_current_color(color);
+            framebuffer.set_pixel(i, y as u32);
+        }
+    }
 }
 
 fn main() {
-
     let window_width = 1300;
     let window_height = 900;
     let block_size = 100;
@@ -95,6 +117,8 @@ fn main() {
     let mut framebuffer = Framebuffer::new(window_width as u32, window_height as u32);
     framebuffer.set_background_color(Color::new(50, 50, 100, 255));
 
+    let texture_manager = TextureManager::new(&mut window, &raylib_thread);
+
     let maze = load_maze("maze.txt");
     let mut player = Player {
         pos: Vector2::new(150.0, 150.0),
@@ -103,24 +127,22 @@ fn main() {
     };
 
     while !window.window_should_close() {
-    framebuffer.clear();
+        framebuffer.clear();
 
-    process_events(&mut player, &window, &maze, block_size);
+        let mut mode = "3D";
 
-    let mut mode = "3D";
+        if window.is_key_down(KeyboardKey::KEY_M) {
+          mode = if mode == "2D" { "3D" } else { "2D" };
+        }
 
-    if window.is_key_down(KeyboardKey::KEY_M) {
-      mode = if mode == "2D" { "3D" } else { "2D" };
-    }
+        if mode == "2D" {
+          render_maze(&mut framebuffer, &maze, block_size, &player);
+        } else {
+          render_3d(&mut framebuffer, &maze, block_size, &player, &texture_manager);
+        }
 
-    if mode == "2D" {
-      render_maze(&mut framebuffer, &maze, block_size, &player);
-    } else {
-      render_3d(&mut framebuffer, &maze, block_size, &player);
-    }
+        framebuffer.swap_buffers(&mut window, &raylib_thread);
 
-    framebuffer.swap_buffers(&mut window, &raylib_thread);
-
-    thread::sleep(Duration::from_millis(16));
+        thread::sleep(Duration::from_millis(16));
     }
 }
