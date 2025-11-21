@@ -3,6 +3,7 @@ use player::{process_events, Player};
 use raylib::prelude::*;
 use framebuffer::Framebuffer;
 use maze::{load_maze, Maze};
+use sprites::Sprite;
 use textures::TextureManager;
 
 mod framebuffer;
@@ -10,6 +11,7 @@ mod maze;
 mod player;
 mod caster;
 mod textures;
+mod sprites;
 
 fn draw_cell(framebuffer: &mut Framebuffer, x0: usize, y0: usize, block_size: usize, cell: char) {
     if cell == ' ' {
@@ -24,6 +26,61 @@ fn draw_cell(framebuffer: &mut Framebuffer, x0: usize, y0: usize, block_size: us
     }
 }
 
+pub fn draw_sprite(
+    framebuffer: &mut Framebuffer,
+    maze: &Maze,
+    player: &Player,
+    sprite: &Sprite,
+    texture_manager: &TextureManager,
+) {
+    let screen_width = framebuffer.width as f32;
+    let screen_height = framebuffer.height as f32;
+
+    let sprite_a = (sprite.pos.y - player.pos.y).atan2(sprite.pos.x - player.pos.x);
+    let mut angle_difference = sprite_a - player.a;
+    while angle_difference > PI {
+        angle_difference -= 2.0 * PI
+    }
+    while angle_difference < -PI {
+        angle_difference += 2.0 * PI
+    }
+    if angle_difference.abs() > player.fov / 2.9 {
+        return;
+    }
+
+    let sprite_d = ((player.pos.x - sprite.pos.x).powi(2) + (player.pos.y - sprite.pos.y).powi(2)).sqrt();
+    if sprite_d < 50.0 || sprite_d > 1000.0 {
+        return;
+    }
+
+    let ray = cast_ray(framebuffer, maze, player, sprite_a, 100, false);
+    let behind_wall = sprite_d >= ray.distance;
+    if behind_wall {
+        return;
+    }
+
+    let sprite_size = (screen_height / sprite_d) * 40.0;
+    let screen_x = ((angle_difference / player.fov) + 0.5) * screen_width;
+
+    let start_x = (screen_x - sprite_size / 2.0).max(0.0) as usize;
+    let start_y = (screen_height / 2.0 - sprite_size / 2.0).max(0.0) as usize;
+
+    let end_x = (start_x + sprite_size as usize).min(framebuffer.width as usize);
+    let end_y = (start_y + sprite_size as usize).min(framebuffer.height as usize);
+
+    for x in start_x..end_x {
+        for y in start_y..end_y {
+            let tx = sprite.start_anim_x + ((x - start_x) as u32 * sprite.frame_width / sprite_size as u32);
+            let ty = sprite.start_anim_y + ((y - start_y) as u32 * sprite.frame_height / sprite_size as u32);
+
+            let color = texture_manager.get_pixel_color(sprite.texture_key, tx, ty);
+            if color.a > 0 {
+                framebuffer.set_current_color(color);
+                framebuffer.set_pixel(x as u32, y as u32);
+            }
+        }
+    }
+}
 
 pub fn render_maze(
     framebuffer: &mut Framebuffer,
