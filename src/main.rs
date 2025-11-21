@@ -1,3 +1,5 @@
+use caster::cast_ray;
+use player::Player;
 use raylib::prelude::*;
 use framebuffer::Framebuffer;
 use maze::Maze;
@@ -25,6 +27,7 @@ pub fn render_maze(
     framebuffer: &mut Framebuffer,
     maze: &Maze,
     block_size: usize,
+    player: &Player,
 ) {
     for (row_index, row) in maze.iter().enumerate() {
         for (col_index, &cell) in row.iter().enumerate() {
@@ -33,6 +36,19 @@ pub fn render_maze(
             draw_cell(framebuffer, x0, y0, block_size, cell);
         }
     }
+
+    framebuffer.set_current_color(Color::RED);
+    let px = player.pos.x as u32;
+    let py = player.pos.y as u32;
+    framebuffer.set_pixel(px, py);
+
+    let num_rays = 5;
+    for i in 0..num_rays {
+        let current_ray = i as f32 / num_rays as f32;
+        let a = player.a - (player.fov / 2.0) + (player.fov * current_ray);
+        cast_ray(framebuffer, maze, player, a, block_size, true);
+    }
+
 }
 
 fn main() {
