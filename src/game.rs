@@ -81,7 +81,7 @@ impl Game {
                         render_maze(&mut self.framebuffer, &maze, self.block_size, &self.player);
                     } else {
                         render_3d(&mut self.framebuffer, &maze, &self.player, self.block_size, &self.texture_manager);
-                        render_minmap(&mut self.framebuffer, &maze, 20, self.block_size, &self.player, self.minimap_pos);
+                        render_minmap(&mut self.framebuffer, &maze, 16, self.block_size, &self.player, self.minimap_pos);
                         render_sword(&mut self.framebuffer, &self.texture_manager);
                     }
 
