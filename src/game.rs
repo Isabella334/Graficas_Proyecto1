@@ -1,6 +1,6 @@
 use crate::framebuffer::Framebuffer;
 use crate::maze::load_maze;
-use crate::player::Player;
+use crate::player::{process_events, Player};
 use crate::renderer::*;
 use crate::textures::TextureManager;
 use raylib::math::Vector2;
@@ -65,6 +65,8 @@ impl Game {
             match self.game_state {
                 GameState::Playing => {
                     let maze = load_maze("maze.txt");
+
+                    process_events(&self.window, &mut self.player, &maze, self.block_size);
 
                     let mut mode = "3D";
                     if self.window.is_key_down(KeyboardKey::KEY_M) {
