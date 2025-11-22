@@ -19,6 +19,7 @@ pub struct Game {
     texture_manager: TextureManager,
     block_size: usize,
     game_state: GameState,
+    minimap_pos: Vector2,
 }
 
 impl Game {
@@ -32,6 +33,8 @@ impl Game {
         window.set_target_fps(60);
 
         let framebuffer = Framebuffer::new(window_width as u32, window_height as u32);
+
+        let minimap_pos = Vector2::new(1030.0, 10.0);
 
         let player = Player {
             pos: Vector2 {
@@ -53,6 +56,7 @@ impl Game {
             texture_manager,
             block_size,
             game_state: GameState::Playing,
+            minimap_pos,
         }
     }
 
@@ -77,6 +81,8 @@ impl Game {
                         render_maze(&mut self.framebuffer, &maze, self.block_size, &self.player);
                     } else {
                         render_3d(&mut self.framebuffer, &maze, &self.player, self.block_size, &self.texture_manager);
+                        render_minmap(&mut self.framebuffer, &maze, 20, self.block_size, &self.player, self.minimap_pos);
+                        render_sword(&mut self.framebuffer, &self.texture_manager);
                     }
 
                     self.framebuffer.swap_buffers(&mut self.window, &self.raylib_thread);

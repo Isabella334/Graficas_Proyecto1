@@ -46,6 +46,7 @@ impl Framebuffer {
         if let Ok(texture) = window.load_texture_from_image(raylib_thread, &self.color_buffer) {
             let mut renderer = window.begin_drawing(raylib_thread);
             renderer.draw_texture(&texture, 0, 0, Color::WHITE);
+            renderer.draw_text(&format!("FPS: {}", renderer.get_fps()), 10, 10, 20, Color::WHITE);
         }
     }
 }

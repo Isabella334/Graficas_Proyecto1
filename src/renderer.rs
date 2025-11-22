@@ -118,14 +118,14 @@ pub fn render_3d(
     let hh = framebuffer.height as f32 / 2.0;
 
     for y in 0..hh as usize {
-        framebuffer.set_current_color(Color::SKYBLUE);
+        framebuffer.set_current_color(Color::GRAY);
         for x in 0..framebuffer.width {
             framebuffer.set_pixel(x as u32, y as u32);
         }
     }
 
     for y in (hh as usize)..framebuffer.height as usize {
-        framebuffer.set_current_color(Color::DARKGREEN);
+        framebuffer.set_current_color(Color::DARKRED);
         for x in 0..framebuffer.width {
             framebuffer.set_pixel(x as u32, y as u32);
         }
@@ -138,7 +138,7 @@ pub fn render_3d(
         let intersect = cast_ray(framebuffer, &maze, &player, a, block_size, false);
 
         let distance_to_wall = intersect.distance;
-        let distance_to_projection_plane = 70.0;
+        let distance_to_projection_plane = 120.0;
         let stake_height = (hh / distance_to_wall) * distance_to_projection_plane;
 
         let stake_top = (hh - (stake_height / 2.0)).max(0.0) as usize;
@@ -153,3 +153,54 @@ pub fn render_3d(
         }
     }
 }
+
+pub fn render_sword(framebuffer: &mut Framebuffer, texture_cache: &TextureManager) {
+    let sword_width = 64;
+    let sword_heigth = 64;
+    let ui_x = 10.0;
+    let ui_y = (framebuffer.height - sword_heigth) as usize;
+
+    for ty in 0..sword_heigth {
+        for tx in 0..sword_width {
+            let color = texture_cache.get_pixel_color('s', tx, ty);
+            if color.a == 0 {
+                continue;
+            }
+            let x = ui_x as u32 + tx;
+            let y = ui_y as u32 + ty;
+            framebuffer.set_current_color(color);
+            framebuffer.set_pixel(x, y);
+        }
+    }
+}
+
+pub fn render_minmap(
+    framebuffer: &mut Framebuffer,
+    maze: &Maze,
+    block_size: usize,
+    world_block_size: usize,
+    player: &Player,
+    pos: Vector2
+) {
+    for (row_index, row) in maze.iter().enumerate() {
+        for (col_index, &cell) in row.iter().enumerate() {
+            let x0 = pos.x as usize + col_index * block_size;
+            let y0 = pos.y as usize + row_index * block_size;
+            draw_cell(framebuffer, x0, y0, block_size, cell);
+        }
+    }
+
+    framebuffer.set_current_color(Color::BLACK);
+    let scale = block_size as f32 / world_block_size as f32;
+
+    let px = pos.x as f32 + player.pos.x * scale;
+    let py = pos.y as f32 + player.pos.y * scale;
+
+    let square_size = 5;
+    for i in 1..square_size {
+        for j in 1..square_size {
+            framebuffer.set_pixel(px as u32 + i, py as u32 + j);
+        }
+    }
+}
+
