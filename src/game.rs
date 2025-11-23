@@ -2,6 +2,7 @@ use crate::framebuffer::Framebuffer;
 use crate::maze::load_maze;
 use crate::player::{process_events, Player};
 use crate::renderer::*;
+use crate::sprites::Sprite;
 use crate::textures::TextureManager;
 use raylib::math::Vector2;
 use raylib::prelude::*;
@@ -20,6 +21,7 @@ pub struct Game {
     block_size: usize,
     game_state: GameState,
     minimap_pos: Vector2,
+    enemies: Vec<Sprite>
 }
 
 impl Game {
@@ -48,6 +50,10 @@ impl Game {
 
         let texture_manager = TextureManager::new(&mut window, &raylib_thread);
 
+        let mut enemies = Vec::new();
+        enemies.push(Sprite::new(1090.0, 165.0, 0, 0, 'g', 64, 64));
+
+
         Self {
             window,
             raylib_thread,
@@ -57,6 +63,7 @@ impl Game {
             block_size,
             game_state: GameState::Playing,
             minimap_pos,
+            enemies
         }
     }
 
@@ -83,6 +90,7 @@ impl Game {
                         render_3d(&mut self.framebuffer, &maze, &self.player, self.block_size, &self.texture_manager);
                         render_minmap(&mut self.framebuffer, &maze, 16, self.block_size, &self.player, self.minimap_pos);
                         render_sword(&mut self.framebuffer, &self.texture_manager);
+                        render_enemies(&mut self.framebuffer, &maze, &self.player, &self.texture_manager, &mut self.enemies);
                     }
 
                     self.framebuffer.swap_buffers(&mut self.window, &self.raylib_thread);

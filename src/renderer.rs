@@ -209,3 +209,14 @@ pub fn render_minmap(
     }
 }
 
+pub fn render_enemies(
+    framebuffer: &mut Framebuffer,
+    maze: &Maze,
+    player: &Player,
+    texture_manager: &TextureManager,
+    enemies: &mut [Sprite],
+) {
+    for enemy in enemies.iter_mut() {
+        draw_sprite(framebuffer, maze, player, enemy, texture_manager);
+    }
+}
