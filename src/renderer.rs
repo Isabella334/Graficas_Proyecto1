@@ -220,3 +220,41 @@ pub fn render_enemies(
         draw_sprite(framebuffer, maze, player, enemy, texture_manager);
     }
 }
+
+pub fn render_live(framebuffer: &mut Framebuffer, texture_cache: &TextureManager, start_x: u32, start_y: u32) {
+    let original_width = 64;
+    let original_height = 64;
+    let scaled_width = 80;
+    let scaled_height = 80;
+
+    for y in 0..scaled_height {
+        for x in 0..scaled_width {
+            let tx = (x * original_width) / scaled_width;
+            let ty = (y * original_height) / scaled_height;
+            let color = texture_cache.get_pixel_color('h', tx, ty);
+            if color.a == 0 {
+                continue;
+            }
+            let screen_x = start_x + x;
+            let screen_y = start_y + y;
+            framebuffer.set_current_color(color);
+            framebuffer.set_pixel(screen_x, screen_y);
+        }
+    }
+}
+
+pub fn render_lives(
+    framebuffer: &mut Framebuffer,
+    texture_cache: &TextureManager,
+    player: &Player,
+) {
+    let lives = player.lives as usize;
+    let start_y = 10;
+    let spacing = 80;
+    let icon_width = 16;
+
+    for i in 0..lives {
+        let start_x = 10 + i * (icon_width + spacing);
+        render_live(framebuffer, texture_cache, start_x as u32, start_y);
+    }
+}

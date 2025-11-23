@@ -52,7 +52,9 @@ impl Game {
 
         let mut enemies = Vec::new();
         enemies.push(Sprite::new(1090.0, 165.0, 0, 0, 'g', 64, 64));
-
+        enemies.push(Sprite::new(180.0, 690.0, 0, 0, 'g', 64, 64));
+        enemies.push(Sprite::new(1070.0, 590.0, 0, 0, 'g', 64, 64));
+        enemies.push(Sprite::new(500.0, 420.0, 0, 0, 'g', 64, 64));
 
         Self {
             window,
@@ -79,6 +81,22 @@ impl Game {
 
                     process_events(&self.window, &mut self.player, &maze, self.block_size);
 
+                    for enemy in &mut self.enemies {
+                        let dist = self.player.pos.distance_to(enemy.pos);
+                        let dx = self.player.pos.x - enemy.pos.x;
+                        let dy = self.player.pos.y - enemy.pos.y;
+
+                        if dist < 200.0 {
+                            enemy.pos.x += dx / dist * 2.0;
+                            enemy.pos.y += dy / dist * 2.0;
+                        }
+
+                        if dist < 30.0 {
+                            self.player.lives -= 1;
+                            self.player.pos = Vector2::new(150.0, 150.0);
+                        }
+                    }
+
                     let mut mode = "3D";
                     if self.window.is_key_down(KeyboardKey::KEY_M) {
                         mode = if mode == "2D" { "3D" } else { "2D" };
@@ -91,6 +109,7 @@ impl Game {
                         render_minmap(&mut self.framebuffer, &maze, 16, self.block_size, &self.player, self.minimap_pos);
                         render_sword(&mut self.framebuffer, &self.texture_manager);
                         render_enemies(&mut self.framebuffer, &maze, &self.player, &self.texture_manager, &mut self.enemies);
+                        render_lives(&mut self.framebuffer, &self.texture_manager, &self.player);
                     }
 
                     self.framebuffer.swap_buffers(&mut self.window, &self.raylib_thread);
