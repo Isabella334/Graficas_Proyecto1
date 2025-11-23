@@ -157,17 +157,22 @@ pub fn render_3d(
 pub fn render_sword(framebuffer: &mut Framebuffer, texture_cache: &TextureManager) {
     let sword_width = 64;
     let sword_heigth = 64;
+    let scale = 5.0;
+    let display_width = (sword_width as f32 * scale) as u32;
+    let display_height = (sword_heigth as f32 * scale) as u32;
     let ui_x = 10.0;
-    let ui_y = (framebuffer.height - sword_heigth) as usize;
+    let ui_y = (framebuffer.height - display_height) as usize;
 
-    for ty in 0..sword_heigth {
-        for tx in 0..sword_width {
+    for ty_disp in 0..display_height {
+        for tx_disp in 0..display_width {
+            let tx = (tx_disp as f32 / scale) as u32;
+            let ty = (ty_disp as f32 / scale) as u32;
             let color = texture_cache.get_pixel_color('s', tx, ty);
             if color.a == 0 {
                 continue;
             }
-            let x = ui_x as u32 + tx;
-            let y = ui_y as u32 + ty;
+            let x = ui_x as u32 + tx_disp;
+            let y = ui_y as u32 + ty_disp;
             framebuffer.set_current_color(color);
             framebuffer.set_pixel(x, y);
         }
