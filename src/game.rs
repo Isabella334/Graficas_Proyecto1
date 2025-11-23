@@ -10,6 +10,8 @@ use std::f32::consts::PI;
 
 pub enum GameState {
     Playing,
+    Win,
+    GameOver
 }
 
 pub struct Game {
@@ -21,7 +23,8 @@ pub struct Game {
     block_size: usize,
     game_state: GameState,
     minimap_pos: Vector2,
-    enemies: Vec<Sprite>
+    enemies: Vec<Sprite>,
+    princess: Sprite
 }
 
 impl Game {
@@ -56,6 +59,8 @@ impl Game {
         enemies.push(Sprite::new(1070.0, 590.0, 0, 0, 'g', 64, 64));
         enemies.push(Sprite::new(500.0, 420.0, 0, 0, 'g', 64, 64));
 
+        let princess = Sprite::new(500.0, 500.0, 0, 0, 'p', 14, 35);
+
         Self {
             window,
             raylib_thread,
@@ -65,7 +70,8 @@ impl Game {
             block_size,
             game_state: GameState::Playing,
             minimap_pos,
-            enemies
+            enemies,
+            princess
         }
     }
 
@@ -76,6 +82,12 @@ impl Game {
             self.framebuffer.clear();
 
             match self.game_state {
+                GameState::Win => {
+
+                }
+                GameState::GameOver => {
+
+                }
                 GameState::Playing => {
                     let maze = load_maze("maze.txt");
 
@@ -94,7 +106,14 @@ impl Game {
                         if dist < 30.0 {
                             self.player.lives -= 1;
                             self.player.pos = Vector2::new(150.0, 150.0);
+                            if self.player.lives == 0 {
+                                self.game_state = GameState::GameOver;
+                            }
                         }
+                    }
+
+                    if self.player.pos.distance_to(self.princess.pos) < 30.0 {
+                        self.game_state = GameState::Win;
                     }
 
                     let mut mode = "3D";
@@ -106,9 +125,9 @@ impl Game {
                         render_maze(&mut self.framebuffer, &maze, self.block_size, &self.player);
                     } else {
                         render_3d(&mut self.framebuffer, &maze, &self.player, self.block_size, &self.texture_manager);
-                        render_minmap(&mut self.framebuffer, &maze, 16, self.block_size, &self.player, self.minimap_pos);
+                        render_minmap(&mut self.framebuffer, &maze, 20, self.block_size, &self.player, &self.princess, &mut self.enemies, self.minimap_pos);
                         render_sword(&mut self.framebuffer, &self.texture_manager);
-                        render_enemies(&mut self.framebuffer, &maze, &self.player, &self.texture_manager, &mut self.enemies);
+                        render_enemies(&mut self.framebuffer, &maze, &self.player, &self.texture_manager, &mut self.enemies, &self.princess);
                         render_lives(&mut self.framebuffer, &self.texture_manager, &self.player);
                     }
 

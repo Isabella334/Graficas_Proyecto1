@@ -18,6 +18,7 @@ impl TextureManager {
             ('s', "assets/sword.png"),
             ('g', "assets/goblin.png"),
             ('h', "assets/heart.png"),
+            ('p', "assets/princess.png"),
         ];
 
         for (ch, path) in texture_files {

@@ -67,7 +67,7 @@ fn draw_cell(framebuffer: &mut Framebuffer, x0: usize, y0: usize, block_size: us
     if cell == ' ' {
         return;
     }
-    framebuffer.set_current_color(Color::DARKOLIVEGREEN);
+    framebuffer.set_current_color(Color::VIOLET);
 
     for x in x0..x0 + block_size {
         for y in y0..y0 + block_size {
@@ -185,6 +185,8 @@ pub fn render_minmap(
     block_size: usize,
     world_block_size: usize,
     player: &Player,
+    princess: &Sprite,
+    enemies: &mut [Sprite],
     pos: Vector2
 ) {
     for (row_index, row) in maze.iter().enumerate() {
@@ -207,7 +209,29 @@ pub fn render_minmap(
             framebuffer.set_pixel(px as u32 + i, py as u32 + j);
         }
     }
+
+    let bx = pos.x as f32 + princess.pos.x * scale;
+    let by = pos.y as f32 + princess.pos.y * scale;
+    framebuffer.set_current_color(Color::PINK);
+    for i in 1..square_size {
+        for j in 1..square_size {
+            framebuffer.set_pixel(bx as u32 + i, by as u32 + j);
+        }
+    }
+
+    framebuffer.set_current_color(Color::RED);
+    for enemy in enemies {
+        let ex = pos.x as f32 + enemy.pos.x * scale;
+        let ey = pos.y as f32 + enemy.pos.y * scale;
+
+        for i in 1..square_size {
+            for j in 1..square_size {
+                framebuffer.set_pixel(ex as u32 + i, ey as u32 + j);
+            }
+        }
+    }
 }
+
 
 pub fn render_enemies(
     framebuffer: &mut Framebuffer,
@@ -215,10 +239,12 @@ pub fn render_enemies(
     player: &Player,
     texture_manager: &TextureManager,
     enemies: &mut [Sprite],
+    princess: &Sprite
 ) {
     for enemy in enemies.iter_mut() {
         draw_sprite(framebuffer, maze, player, enemy, texture_manager);
     }
+    draw_sprite(framebuffer, &maze, player, princess, texture_manager);
 }
 
 pub fn render_live(framebuffer: &mut Framebuffer, texture_cache: &TextureManager, start_x: u32, start_y: u32) {
