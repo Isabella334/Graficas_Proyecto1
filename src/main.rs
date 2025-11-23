@@ -6,6 +6,7 @@ mod textures;
 mod sprites;
 mod renderer;
 mod game;
+mod audio;
 
 use game::Game;
 

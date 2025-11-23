@@ -1,3 +1,4 @@
+use crate::audio::Audio;
 use crate::framebuffer::Framebuffer;
 use crate::maze::load_maze;
 use crate::player::{process_events, Player};
@@ -24,7 +25,8 @@ pub struct Game {
     game_state: GameState,
     minimap_pos: Vector2,
     enemies: Vec<Sprite>,
-    princess: Sprite
+    princess: Sprite,
+    audio: Audio
 }
 
 impl Game {
@@ -71,13 +73,15 @@ impl Game {
             game_state: GameState::Playing,
             minimap_pos,
             enemies,
-            princess
+            princess,
+            audio: Audio::new()
         }
     }
 
     pub fn run(&mut self) {
         self.framebuffer.set_background_color(Color::BLUE);
 
+        self.audio.play_music("assets/music.wav");
         while !self.window.window_should_close() {
             self.framebuffer.clear();
 
