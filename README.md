@@ -2,7 +2,8 @@
  
 > Explora un laberinto, esquiva a los goblins, y rescata a la princesa antes de que sea demasiado tarde.
 
-![Knight's Quest Banner](assets/start.png)
+![Game view](assets/game1.png)
+![Game view](assets/game2.png)
 
 ## 🎮 Jugabilidad
 
