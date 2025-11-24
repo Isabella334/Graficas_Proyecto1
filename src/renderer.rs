@@ -284,3 +284,55 @@ pub fn render_lives(
         render_live(framebuffer, texture_cache, start_x as u32, start_y);
     }
 }
+
+pub fn render_start(d: &mut RaylibDrawHandle, screen_width: u32, texture_cache: &TextureManager) {
+    d.clear_background(Color::RED);
+
+    let logo = texture_cache.get_texture('t').unwrap();
+    let scale = 0.5;
+
+    let logo_width = (logo.width as f32 * scale) as i32;
+    let logo_height = (logo.height as f32 * scale) as i32;
+
+    let logo_x = (screen_width as i32 / 2) - (logo_width / 2);
+    let logo_y = 100;
+
+    d.draw_texture_ex(&logo, Vector2::new(logo_x as f32, logo_y as f32), 0.0, scale, Color::WHITE);
+
+    let font_size = 30;
+    let instructions = "Run from the goblins and rescue the princess";
+
+    let instructions_width = d.measure_text(instructions, font_size);
+    let inst_x = (screen_width as i32 / 2) - (instructions_width / 2);
+    let inst_y = logo_y + logo_height + 60;
+    d.draw_text(instructions, inst_x, inst_y, font_size, Color::WHITE);
+}
+
+pub fn render_game_over(d: &mut RaylibDrawHandle, screen_width: u32, texture_cache: &TextureManager) {
+    d.clear_background(Color::RED);
+
+    let logo = texture_cache.get_texture('o').unwrap();
+    let scale = 0.5;
+
+    let logo_width = (logo.width as f32 * scale) as i32;
+
+    let logo_x = (screen_width as i32 / 2) - (logo_width / 2);
+    let logo_y = 180;
+
+    d.draw_texture_ex(&logo, Vector2::new(logo_x as f32, logo_y as f32), 0.0, scale, Color::WHITE);
+}
+
+
+pub fn render_victory(d: &mut RaylibDrawHandle, screen_width: u32, texture_cache: &TextureManager) {
+    d.clear_background(Color::RED);
+
+    let logo = texture_cache.get_texture('w').unwrap();
+    let scale = 0.5;
+
+    let logo_width = (logo.width as f32 * scale) as i32;
+
+    let logo_x = (screen_width as i32 / 2) - (logo_width / 2);
+    let logo_y = 180;
+
+    d.draw_texture_ex(&logo, Vector2::new(logo_x as f32, logo_y as f32), 0.0, scale, Color::WHITE);
+}

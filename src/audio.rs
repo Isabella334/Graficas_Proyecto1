@@ -27,7 +27,7 @@ impl Audio {
         self.music_sink.append(source);
     }
 
-    pub fn play_sfx(&self, file_path: &str) {
+    pub fn sfx(&self, file_path: &str) {
         let file = File::open(file_path).unwrap();
         let source = Decoder::new(BufReader::new(file)).unwrap();
         self.handle.play_raw(source.convert_samples()).unwrap();

@@ -10,6 +10,7 @@ use raylib::prelude::*;
 use std::f32::consts::PI;
 
 pub enum GameState {
+    MainMenu,
     Playing,
     Win,
     GameOver
@@ -70,7 +71,7 @@ impl Game {
             player,
             texture_manager,
             block_size,
-            game_state: GameState::Playing,
+            game_state: GameState::MainMenu,
             minimap_pos,
             enemies,
             princess,
@@ -86,11 +87,23 @@ impl Game {
             self.framebuffer.clear();
 
             match self.game_state {
+                GameState::MainMenu => {
+                    let mut d = self.window.begin_drawing(&self.raylib_thread);
+                    render_start(&mut d, self.framebuffer.width, &self.texture_manager);
+                    if d.is_key_pressed(KeyboardKey::KEY_ENTER) {
+                        self.game_state = GameState::Playing;
+                    }
+                }
                 GameState::Win => {
-
+                    let mut d = self.window.begin_drawing(&self.raylib_thread);
+                    render_victory(&mut d, self.framebuffer.width, &self.texture_manager);
+                    if d.is_key_pressed(KeyboardKey::KEY_ENTER) {
+                        self.game_state = GameState::Playing;
+                    }
                 }
                 GameState::GameOver => {
-
+                    let mut d = self.window.begin_drawing(&self.raylib_thread);
+                    render_game_over(&mut d, self.framebuffer.width, &self.texture_manager);
                 }
                 GameState::Playing => {
                     let maze = load_maze("maze.txt");
@@ -103,6 +116,7 @@ impl Game {
                         let dy = self.player.pos.y - enemy.pos.y;
 
                         if dist < 200.0 {
+                            self.audio.sfx("assets/goblin.wav");
                             enemy.pos.x += dx / dist * 2.0;
                             enemy.pos.y += dy / dist * 2.0;
                         }
@@ -118,6 +132,7 @@ impl Game {
 
                     if self.player.pos.distance_to(self.princess.pos) < 30.0 {
                         self.game_state = GameState::Win;
+                        self.audio.sfx("assets/win.wav");
                     }
 
                     let mut mode = "3D";
