@@ -286,7 +286,7 @@ pub fn render_lives(
 }
 
 pub fn render_start(d: &mut RaylibDrawHandle, screen_width: u32, texture_cache: &TextureManager) {
-    d.clear_background(Color::RED);
+    d.clear_background(Color::BLACK);
 
     let logo = texture_cache.get_texture('t').unwrap();
     let scale = 0.5;
@@ -309,7 +309,7 @@ pub fn render_start(d: &mut RaylibDrawHandle, screen_width: u32, texture_cache: 
 }
 
 pub fn render_game_over(d: &mut RaylibDrawHandle, screen_width: u32, texture_cache: &TextureManager) {
-    d.clear_background(Color::RED);
+    d.clear_background(Color::BLACK);
 
     let logo = texture_cache.get_texture('o').unwrap();
     let scale = 0.5;
@@ -324,7 +324,7 @@ pub fn render_game_over(d: &mut RaylibDrawHandle, screen_width: u32, texture_cac
 
 
 pub fn render_victory(d: &mut RaylibDrawHandle, screen_width: u32, texture_cache: &TextureManager) {
-    d.clear_background(Color::RED);
+    d.clear_background(Color::BLACK);
 
     let logo = texture_cache.get_texture('w').unwrap();
     let scale = 0.5;

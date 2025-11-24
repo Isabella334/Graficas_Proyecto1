@@ -34,7 +34,7 @@ impl Game {
     pub fn new(window_width: i32, window_height: i32, block_size: usize) -> Self {
         let (mut window, raylib_thread) = raylib::init()
             .size(window_width, window_height)
-            .title("Raycaster - Isa Recinos")
+            .title("Knight Maze")
             .log_level(TraceLogLevel::LOG_WARNING)
             .build();
 
